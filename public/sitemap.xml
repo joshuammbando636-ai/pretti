@@ -92,4 +92,28 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- NEW: Wedding Decoration Cost Guide -->
+  <url>
+    <loc>https://preetiedecor.com/blog/wedding-decoration-cost-dar-es-salaam-2026</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- NEW: Kitchen Party & Send-Off Ideas -->
+  <url>
+    <loc>https://preetiedecor.com/blog/kitchen-party-send-off-decoration-ideas-tanzania-2026</loc>
+    <lastmod>2026-06-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- NEW: Garden & Outdoor Wedding Ideas -->
+  <url>
+    <loc>https://preetiedecor.com/blog/garden-outdoor-wedding-decoration-dar-es-salaam-2026</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
