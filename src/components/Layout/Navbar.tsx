@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { theme } from '../../styles/theme';
 import Logo from './Logo';
 
+/* ── Top bar: kept only to hold the logo and reserve layout space ───────────── */
 const NavbarContainer = styled.nav`
   width: 100%;
   background-color: ${theme.colors.primary};
@@ -24,9 +25,6 @@ const NavContent = styled.div`
   width: 100%;
   margin: 0 auto;
   padding: 0 ${theme.spacing.large};
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
   position: relative;
   height: 100%;
 
@@ -35,178 +33,209 @@ const NavContent = styled.div`
   }
 `;
 
-const MenuToggle = styled.button<{ isOpen: boolean }>`
-  display: none;
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: white;
-  cursor: pointer;
-  padding: 8px;
-  z-index: ${props => props.isOpen ? '999' : '1002'};
-  position: relative;
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
-  tap-highlight-color: rgba(255, 255, 255, 0.3);
+/* ── Floating bubble button (fixed top-right, sits above the panel) ─────────── */
+const Bubble = styled.button<{ $open: boolean; $reduce: boolean }>`
+  position: fixed;
+  top: 11px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-
-  &:focus {
-    outline: none;
-  }
-
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    display: block;
-  }
-`;
-
-const NavLinks = styled.div<{ isOpen: boolean }>`
+  border: none;
+  background: ${theme.colors.white};
+  box-shadow: ${theme.shadows.medium};
+  cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
+  z-index: 2200;
+  transition: ${p => (p.$reduce ? 'none' : 'transform 0.3s ease, box-shadow 0.3s ease')};
+
+  &:hover {
+    transform: ${p => (p.$reduce ? 'none' : 'scale(1.08)')};
+    box-shadow: ${theme.shadows.hover};
+  }
+
+  &:focus-visible {
+    outline: 3px solid ${theme.colors.accent};
+    outline-offset: 3px;
+  }
 
   @media (max-width: ${theme.breakpoints.tablet}) {
-    display: flex;
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    bottom: 10px;
-    width: 280px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    flex-direction: column;
-    justify-content: center;
-    padding: 2rem 0;
-    z-index: 1001;
-    transform: ${props => props.isOpen ? 'translateX(0)' : 'translateX(120%)'};
-    transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
-    border-radius: 28px;
-    border: none;
-    pointer-events: ${props => props.isOpen ? 'auto' : 'none'};
-    max-height: calc(100vh - 20px);
+    top: 9px;
   }
 `;
 
-const NavList = styled.ul`
+const Bars = styled.span`
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 16px;
+`;
+
+const Bar = styled.span<{ $open: boolean; $pos: 'top' | 'mid' | 'bot'; $reduce: boolean }>`
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2.5px;
+  border-radius: 2px;
+  background: ${theme.colors.primary};
+  transition: ${p =>
+    p.$reduce ? 'none' : 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease'};
+
+  ${p =>
+    p.$pos === 'top' &&
+    css`
+      top: 0;
+      ${p.$open && css`transform: translateY(6.75px) rotate(45deg);`}
+    `}
+  ${p =>
+    p.$pos === 'mid' &&
+    css`
+      top: 6.75px;
+      ${p.$open && css`opacity: 0; transform: scaleX(0);`}
+    `}
+  ${p =>
+    p.$pos === 'bot' &&
+    css`
+      bottom: 0;
+      ${p.$open && css`transform: translateY(-6.75px) rotate(-45deg);`}
+    `}
+`;
+
+/* ── Shared blurred backdrop ────────────────────────────────────────────────── */
+const Backdrop = styled.div<{ $open: boolean; $reduce: boolean }>`
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 2000;
+  opacity: ${p => (p.$open ? 1 : 0)};
+  visibility: ${p => (p.$open ? 'visible' : 'hidden')};
+  pointer-events: ${p => (p.$open ? 'auto' : 'none')};
+  transition: ${p =>
+    p.$reduce ? 'none' : 'opacity 0.35s ease, visibility 0.35s ease'};
+`;
+
+/* ── Desktop panel: full-height slide-in from the right ─────────────────────── */
+const DesktopPanel = styled.nav<{ $open: boolean; $reduce: boolean }>`
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(440px, 88vw);
+  background: ${theme.colors.light};
+  z-index: 2100;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: ${theme.spacing.xxlarge} ${theme.spacing.xlarge};
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.25);
+  transform: ${p => (p.$open ? 'translateX(0)' : 'translateX(100%)')};
+  pointer-events: ${p => (p.$open ? 'auto' : 'none')};
+  transition: ${p => (p.$reduce ? 'none' : 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)')};
+`;
+
+const List = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 1.2rem;
-
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.5rem 0;
-    width: 100%;
-  }
+  display: flex;
+  flex-direction: column;
 `;
 
-const NavItem = styled.li`
-  /* No changes needed */
+const DesktopItem = styled.li<{ $open: boolean; $reduce: boolean; $i: number }>`
+  opacity: ${p => (p.$open ? 1 : 0)};
+  transform: ${p => (p.$open ? 'translateX(0)' : 'translateX(40px)')};
+  transition: ${p =>
+    p.$reduce
+      ? 'none'
+      : 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)'};
+  transition-delay: ${p => (p.$reduce || !p.$open ? '0s' : `${0.1 + p.$i * 0.07}s`)};
 `;
 
-const StyledNavLink = styled(Link)<{ $isActive?: boolean }>`
-  color: ${props => props.$isActive ? theme.colors.secondary : 'white'};
+const DesktopLink = styled(Link)<{ $active: boolean; $reduce: boolean }>`
+  display: inline-flex;
+  padding: 0.4rem 0;
+  perspective: 700px;
+  font-family: ${theme.fonts.heading};
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   text-decoration: none;
-  padding: 0.6rem 1.2rem;
-  font-weight: 500;
-  font-size: 1rem;
-  position: relative;
-  display: inline-block;
+  color: ${p => (p.$active ? theme.colors.primary : theme.colors.dark)};
   transition: color 0.2s ease;
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
-  tap-highlight-color: rgba(255, 255, 255, 0.3);
-  border-radius: 40px;
-
-  &:focus {
-    outline: none;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: 1.2rem;
-    right: 1.2rem;
-    bottom: 0;
-    height: 2px;
-    background-color: ${theme.colors.secondary};
-    transform: scaleX(0);
-    transition: transform 0.2s ease;
-  }
 
   &:hover {
-    color: ${theme.colors.secondary};
+    color: ${theme.colors.primary};
   }
 
-  &:hover::after {
-    transform: scaleX(1);
-  }
-
-  ${props => props.$isActive && `
-    &::after {
-      transform: scaleX(1);
-    }
-  `}
-
-  /* Mobile styles - SIMPLE BLACK TEXT, NO SHADOWS */
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    color: #716d6d;
-    font-size: 1.3rem;
-    padding: 1rem 2.5rem;
-    width: auto;
-    min-width: 180px;
-    display: inline-block;
-    text-align: center;
-    font-weight: 500;
-    text-shadow: none;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-    tap-highlight-color: rgba(0, 0, 0, 0.1);
-    border-radius: 60px;
-
-    &:focus {
-      outline: none;
-    }
-
-    &::after {
-      display: none;
-    }
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.3);
-      color: #000000;
-      transform: scale(1.05);
-    }
-
-    &:active {
-      background: rgba(255, 255, 255, 0.5);
-      transition: background 0.1s ease;
-    }
-
-    ${props => props.$isActive && `
-      background: rgba(255, 255, 255, 0.35);
-      color: #000000;
-      font-weight: 600;
-    `}
+  &:focus-visible {
+    outline: 3px solid ${theme.colors.accent};
+    outline-offset: 4px;
+    border-radius: 6px;
   }
 `;
 
-const GlassDecoration = styled.div`
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  right: 20px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 2px;
-  display: none;
+const Char = styled.span`
+  display: inline-block;
+`;
 
-  &:focus {
-    outline: none;
+/* ── Mobile panel: small bouncy card anchored top-right ─────────────────────── */
+const MobilePanel = styled.nav<{ $open: boolean; $reduce: boolean }>`
+  position: fixed;
+  top: 70px;
+  right: 12px;
+  width: min(78vw, 280px);
+  background: rgba(249, 241, 243, 0.92);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 24px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.25);
+  z-index: 2100;
+  padding: 0.75rem;
+  transform-origin: top right;
+  transform: ${p => (p.$open ? 'scale(1)' : 'scale(0.4)')};
+  opacity: ${p => (p.$open ? 1 : 0)};
+  pointer-events: ${p => (p.$open ? 'auto' : 'none')};
+  transition: ${p =>
+    p.$reduce
+      ? 'none'
+      : 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease'};
+`;
+
+const MobileItem = styled.li<{ $open: boolean; $reduce: boolean; $i: number }>`
+  opacity: ${p => (p.$open ? 1 : 0)};
+  transform: ${p => (p.$open ? 'translateY(0)' : 'translateY(-8px)')};
+  transition: ${p =>
+    p.$reduce ? 'none' : 'opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)'};
+  transition-delay: ${p => (p.$reduce || !p.$open ? '0s' : `${0.08 + p.$i * 0.04}s`)};
+`;
+
+const MobileLink = styled(Link)<{ $active: boolean }>`
+  display: block;
+  text-align: center;
+  font-family: ${theme.fonts.body};
+  font-size: 1.15rem;
+  font-weight: 500;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  text-decoration: none;
+  color: ${p => (p.$active ? theme.colors.primary : theme.colors.dark)};
+  background: ${p => (p.$active ? 'rgba(179, 0, 45, 0.08)' : 'transparent')};
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: rgba(179, 0, 45, 0.08);
+    color: ${theme.colors.primary};
   }
 
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    display: block;
+  &:focus-visible {
+    outline: 3px solid ${theme.colors.accent};
+    outline-offset: 2px;
   }
 `;
 
@@ -216,71 +245,122 @@ const navItems = [
   { path: '/events', label: 'Events' },
   { path: '/gallery', label: 'Gallery' },
   { path: '/contact', label: 'Contact Us' },
-  { path: '/blog', label: 'Blog' }
+  { path: '/blog', label: 'Blog' },
 ];
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [reduce, setReduce] = useState(false);
   const location = useLocation();
-  const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Handle click outside
+  // Track viewport + reduced-motion preference
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isOpen && 
-          menuRef.current && 
-          !menuRef.current.contains(event.target as Node) &&
-          buttonRef.current &&
-          !buttonRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-        document.body.style.overflow = 'unset';
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
+    const desktopQuery = window.matchMedia('(min-width: 769px)');
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const syncDesktop = () => setIsDesktop(desktopQuery.matches);
+    const syncMotion = () => setReduce(motionQuery.matches);
+    syncDesktop();
+    syncMotion();
+    desktopQuery.addEventListener('change', syncDesktop);
+    motionQuery.addEventListener('change', syncMotion);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      desktopQuery.removeEventListener('change', syncDesktop);
+      motionQuery.removeEventListener('change', syncMotion);
+    };
+  }, []);
+
+  // Lock body scroll while the menu is open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
-  const handleLinkClick = () => {
-    setIsOpen(false);
-    document.body.style.overflow = 'unset';
-  };
+  // Escape closes and returns focus to the trigger
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen]);
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-    document.body.style.overflow = !isOpen ? 'hidden' : 'unset';
-  };
+  const close = () => setIsOpen(false);
+  const toggle = () => setIsOpen(prev => !prev);
 
   return (
-    <NavbarContainer>
-      <NavContent>
-        <Logo />
-        
-        <MenuToggle onClick={toggleMenu} ref={buttonRef} isOpen={isOpen}>
-          ☰
-        </MenuToggle>
+    <>
+      <NavbarContainer>
+        <NavContent>
+          <Logo />
+        </NavContent>
+      </NavbarContainer>
 
-        <NavLinks isOpen={isOpen} ref={menuRef}>
-          <GlassDecoration />
-          <NavList>
-            {navItems.map((item) => (
-              <NavItem key={item.path}>
-                <StyledNavLink 
+      <Bubble
+        ref={buttonRef}
+        onClick={toggle}
+        $open={isOpen}
+        $reduce={reduce}
+        aria-label={isOpen ? 'Close menu' : 'Open menu'}
+        aria-expanded={isOpen}
+        aria-controls="primary-nav"
+      >
+        <Bars aria-hidden="true">
+          <Bar $open={isOpen} $pos="top" $reduce={reduce} />
+          <Bar $open={isOpen} $pos="mid" $reduce={reduce} />
+          <Bar $open={isOpen} $pos="bot" $reduce={reduce} />
+        </Bars>
+      </Bubble>
+
+      <Backdrop $open={isOpen} $reduce={reduce} onClick={close} aria-hidden="true" />
+
+      {isDesktop ? (
+        <DesktopPanel id="primary-nav" $open={isOpen} $reduce={reduce} aria-hidden={!isOpen}>
+          <List>
+            {navItems.map((item, idx) => (
+              <DesktopItem key={item.path} $open={isOpen} $reduce={reduce} $i={idx}>
+                <DesktopLink
                   to={item.path}
-                  onClick={handleLinkClick}
-                  $isActive={location.pathname === item.path}
+                  onClick={close}
+                  $active={location.pathname === item.path}
+                  $reduce={reduce}
+                  tabIndex={isOpen ? 0 : -1}
+                >
+                  {item.label.split('').map((ch, i) => (
+                    <Char key={i}>
+                      {ch === ' ' ? ' ' : ch}
+                    </Char>
+                  ))}
+                </DesktopLink>
+              </DesktopItem>
+            ))}
+          </List>
+        </DesktopPanel>
+      ) : (
+        <MobilePanel id="primary-nav" $open={isOpen} $reduce={reduce} aria-hidden={!isOpen}>
+          <List>
+            {navItems.map((item, idx) => (
+              <MobileItem key={item.path} $open={isOpen} $reduce={reduce} $i={idx}>
+                <MobileLink
+                  to={item.path}
+                  onClick={close}
+                  $active={location.pathname === item.path}
+                  tabIndex={isOpen ? 0 : -1}
                 >
                   {item.label}
-                </StyledNavLink>
-              </NavItem>
+                </MobileLink>
+              </MobileItem>
             ))}
-          </NavList>
-        </NavLinks>
-      </NavContent>
-    </NavbarContainer>
+          </List>
+        </MobilePanel>
+      )}
+    </>
   );
 };
 

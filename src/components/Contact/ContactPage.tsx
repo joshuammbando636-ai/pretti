@@ -1,267 +1,280 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import styled, { keyframes } from 'styled-components';
+import { Phone, Mail, MapPin, Clock, Send, Loader2, CheckCircle2 } from 'lucide-react';
 import { theme } from '../../styles/theme';
 
-// Additional animations
+/* ── Animations ─────────────────────────────────────────────────────────────── */
 const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 `;
 
 const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 `;
 
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+const pop = keyframes`
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.15); }
   100% { transform: scale(1); }
 `;
 
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+const Page = styled.section`
+  padding: ${theme.spacing.xxlarge} ${theme.spacing.large};
+  background: ${theme.colors.light};
+  display: flex;
+  justify-content: center;
+
+  @media (max-width: ${theme.breakpoints.mobile}) {
+    padding: ${theme.spacing.large} ${theme.spacing.medium};
+  }
 `;
 
-const Section = styled.section`
-  max-width: 650px;
-  margin: 40px auto;
-  padding: 30px 25px;
-  background: ${theme.gradients.light};
+const Card = styled.div`
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  width: 100%;
+  max-width: 1000px;
+  background: ${theme.colors.white};
   border-radius: ${theme.borderRadius.large};
   box-shadow: ${theme.shadows.card};
-  text-align: center;
+  overflow: hidden;
+  animation: ${fadeInUp} 0.6s ease;
+
+  @media (max-width: ${theme.breakpoints.tablet}) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+/* ── Left: branded info panel ───────────────────────────────────────────────── */
+const InfoPanel = styled.div`
   position: relative;
   overflow: hidden;
+  background: ${theme.gradients.primary};
+  color: ${theme.colors.white};
+  padding: ${theme.spacing.xlarge};
+  display: flex;
+  flex-direction: column;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: ${theme.gradients.primary};
-    background-size: 200% 100%;
-    animation: ${shimmer} 3s infinite;
-  }
-
-  @media (max-width: ${theme.breakpoints.mobile}) {
-    margin: 20px 15px;
-    padding: 25px 20px;
-    max-width: 100%;
-  }
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  color: ${theme.colors.primary};
-  margin-bottom: 5px;
-  position: relative;
-  display: inline-block;
-  font-family: ${theme.fonts.heading};
-  animation: ${fadeInUp} 0.6s ease;
-  font-weight: 600;
-
+  /* soft decorative circles */
+  &::before,
   &::after {
     content: '';
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: ${theme.gradients.primary};
-    margin: 10px auto 0;
-    border-radius: ${theme.borderRadius.round};
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  &::before {
+    width: 200px;
+    height: 200px;
+    top: -70px;
+    right: -60px;
+  }
+  &::after {
+    width: 140px;
+    height: 140px;
+    bottom: -50px;
+    left: -40px;
   }
 
-  @media (max-width: ${theme.breakpoints.mobile}) {
-    font-size: 2.2rem;
+  @media (max-width: ${theme.breakpoints.tablet}) {
+    padding: ${theme.spacing.large};
   }
 `;
 
-const Subtitle = styled.p`
-  font-size: 1rem;
-  color: ${theme.colors.textLight};
-  margin-bottom: 25px;
-  font-style: italic;
-  animation: ${fadeInUp} 0.6s ease 0.2s both;
+const InfoTitle = styled.h1`
+  position: relative;
+  font-family: ${theme.fonts.heading};
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: ${theme.spacing.small};
+`;
+
+const InfoText = styled.p`
+  position: relative;
   font-family: ${theme.fonts.body};
+  font-size: 0.98rem;
+  line-height: 1.6;
+  opacity: 0.92;
+  margin-bottom: ${theme.spacing.large};
+`;
+
+const ContactList = styled.ul`
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.medium};
+  margin-top: auto;
+`;
+
+const ContactItem = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: ${theme.fonts.body};
+  font-size: 0.95rem;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  span.label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.75;
+    margin-bottom: 1px;
+  }
+`;
+
+/* ── Right: form panel ──────────────────────────────────────────────────────── */
+const FormPanel = styled.div`
+  padding: ${theme.spacing.xlarge};
+
+  @media (max-width: ${theme.breakpoints.tablet}) {
+    padding: ${theme.spacing.large};
+  }
+`;
+
+const FormHeading = styled.h2`
+  font-family: ${theme.fonts.heading};
+  font-size: 1.5rem;
+  color: ${theme.colors.dark};
+  margin-bottom: 4px;
+`;
+
+const FormSub = styled.p`
+  font-family: ${theme.fonts.body};
+  font-size: 0.9rem;
+  color: ${theme.colors.textLight};
+  margin-bottom: ${theme.spacing.large};
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  animation: ${fadeInUp} 0.6s ease 0.4s both;
+  gap: ${theme.spacing.medium};
 `;
 
 const FormRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: ${theme.spacing.medium};
 
   @media (max-width: ${theme.breakpoints.mobile}) {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 0;
   text-align: left;
   position: relative;
 `;
 
 const Label = styled.label`
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   color: ${theme.colors.dark};
   font-weight: 600;
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
+  font-size: 0.85rem;
   font-family: ${theme.fonts.body};
+  transition: color 0.25s ease;
 
   ${FormGroup}:focus-within & {
     color: ${theme.colors.primary};
   }
 `;
 
-const Input = styled.input`
+const fieldStyles = `
   width: 100%;
   padding: 12px 14px;
   border-radius: ${theme.borderRadius.medium};
-  border: 2px solid ${theme.colors.grayLight};
+  border: 1.5px solid ${theme.colors.grayLight};
   font-size: 0.95rem;
   font-family: ${theme.fonts.body};
-  transition: all 0.3s ease;
-  background: ${theme.colors.white};
+  background: ${theme.colors.light};
+  color: ${theme.colors.dark};
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 
-  &:hover {
-    border-color: ${theme.colors.secondary};
+  &::placeholder {
+    color: ${theme.colors.gray};
   }
 
   &:focus {
     border-color: ${theme.colors.primary};
+    background: ${theme.colors.white};
     outline: none;
-    box-shadow: 0 0 0 3px ${theme.colors.primary}15;
-    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px ${theme.colors.primary}1f;
   }
+`;
 
-  &::placeholder {
-    color: ${theme.colors.gray};
-    font-style: italic;
-    font-size: 0.9rem;
-  }
+const Input = styled.input`
+  ${fieldStyles}
 `;
 
 const Select = styled.select`
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: ${theme.borderRadius.medium};
-  border: 2px solid ${theme.colors.grayLight};
-  font-size: 0.95rem;
-  font-family: ${theme.fonts.body};
-  transition: all 0.3s ease;
-  background: ${theme.colors.white};
+  ${fieldStyles}
   cursor: pointer;
-
-  &:hover {
-    border-color: ${theme.colors.secondary};
-  }
-
-  &:focus {
-    border-color: ${theme.colors.primary};
-    outline: none;
-    box-shadow: 0 0 0 3px ${theme.colors.primary}15;
-    transform: translateY(-1px);
-  }
 `;
 
 const TextArea = styled.textarea`
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: ${theme.borderRadius.medium};
-  border: 2px solid ${theme.colors.grayLight};
-  font-size: 0.95rem;
-  font-family: ${theme.fonts.body};
-  transition: all 0.3s ease;
+  ${fieldStyles}
   resize: vertical;
-  min-height: 100px;
-  background: ${theme.colors.white};
-
-  &:hover {
-    border-color: ${theme.colors.secondary};
-  }
-
-  &:focus {
-    border-color: ${theme.colors.primary};
-    outline: none;
-    box-shadow: 0 0 0 3px ${theme.colors.primary}15;
-    transform: translateY(-1px);
-  }
-
-  &::placeholder {
-    color: ${theme.colors.gray};
-    font-style: italic;
-    font-size: 0.9rem;
-  }
+  min-height: 120px;
 `;
 
-const SubmitButton = styled.button<{ isSubmitting?: boolean }>`
+const SubmitButton = styled.button`
   background: ${theme.gradients.primary};
-  color: white;
+  color: ${theme.colors.white};
   border: none;
   padding: 14px 25px;
   border-radius: ${theme.borderRadius.round};
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   font-family: ${theme.fonts.body};
-  margin-top: 10px;
-  position: relative;
-  overflow: hidden;
+  margin-top: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   box-shadow: 0 8px 16px ${theme.colors.primary}30;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s ease;
-  }
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 12px 24px ${theme.colors.primary}40;
-
-    &::before {
-      left: 100%;
-    }
   }
 
   &:active:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(0);
   }
 
   &:disabled {
@@ -269,52 +282,44 @@ const SubmitButton = styled.button<{ isSubmitting?: boolean }>`
     cursor: not-allowed;
   }
 
-  svg {
-    width: 18px;
-    height: 18px;
-    animation: ${props => props.isSubmitting ? pulse : 'none'} 1.5s infinite;
+  .spin {
+    animation: ${spin} 0.9s linear infinite;
   }
 `;
 
 const SuccessMessage = styled.div`
-  background: ${theme.gradients.secondary};
-  color: white;
-  padding: 30px 25px;
-  border-radius: ${theme.borderRadius.large};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  animation: ${fadeIn} 0.5s ease;
+  padding: ${theme.spacing.xlarge} ${theme.spacing.medium};
+  animation: ${fadeIn} 0.4s ease;
+
+  .success-icon {
+    color: ${theme.colors.success};
+    margin-bottom: ${theme.spacing.medium};
+    animation: ${pop} 0.5s ease;
+  }
 
   h3 {
-    font-size: 1.8rem;
-    margin-bottom: 10px;
     font-family: ${theme.fonts.heading};
+    font-size: 1.6rem;
+    color: ${theme.colors.dark};
+    margin-bottom: 8px;
   }
 
   p {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin-bottom: 15px;
     font-family: ${theme.fonts.body};
-  }
-
-  .success-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    margin: 0 auto 15px;
-    animation: ${pulse} 2s infinite;
+    font-size: 0.95rem;
+    color: ${theme.colors.textLight};
+    margin-bottom: 4px;
   }
 `;
 
 const ErrorMessage = styled.small`
   color: ${theme.colors.danger};
   font-size: 0.8rem;
-  margin-top: 3px;
+  margin-top: 4px;
   display: block;
   text-align: left;
   font-family: ${theme.fonts.body};
@@ -374,12 +379,12 @@ const ContactPage: React.FC = () => {
       ...prev,
       [name]: value
     }));
-    
+
     // Clear error for this field
     if (errors[name as keyof ContactForm]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
-    
+
     // Clear submit error when user types
     if (submitError) {
       setSubmitError('');
@@ -388,7 +393,7 @@ const ContactPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -415,14 +420,14 @@ const ContactPage: React.FC = () => {
 
       if (response.ok) {
         setIsSubmitted(true);
-        setFormData({ 
-          name: '', 
-          email: '', 
-          phone: '', 
-          eventType: '', 
-          message: '' 
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          eventType: '',
+          message: ''
         });
-        
+
         // Reset success message after 5 seconds
         setTimeout(() => {
           setIsSubmitted(false);
@@ -448,111 +453,165 @@ const ContactPage: React.FC = () => {
         <meta name="geo.position" content="-6.7924;39.2083" />
         <meta name="ICBM" content="-6.7924, 39.2083" />
       </Helmet>
-      <Section>
-        <Title>Contact Us</Title>
-        <Subtitle>We'd love to hear from you</Subtitle>
-        
-        {isSubmitted ? (
-          <SuccessMessage>
-            <div className="success-icon">✓</div>
-            <h3>Thank You!</h3>
-            <p>Your message has been sent successfully.</p>
-            <p>We'll get back to you within 24 hours.</p>
-          </SuccessMessage>
-        ) : (
-          <Form onSubmit={handleSubmit}>
-            <FormRow>
-              <FormGroup>
-                <Label htmlFor="name">
-                  Name <RequiredStar>*</RequiredStar>
-                </Label>
-                <Input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Harpreet Kaur"
-                  className={errors.name ? 'error' : ''}
-                />
-                {errors.name && <ErrorMessage>{errors.name}</ErrorMessage>}
-              </FormGroup>
+      <Page>
+        <Card>
+          <InfoPanel>
+            <InfoTitle>Let's create something beautiful</InfoTitle>
+            <InfoText>
+              Tell us about your event and we'll get back to you within 24 hours with
+              ideas and a free quote.
+            </InfoText>
 
-              <FormGroup>
-                <Label htmlFor="email">
-                  Email <RequiredStar>*</RequiredStar>
-                </Label>
-                <Input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="harpreet@example.com"
-                  className={errors.email ? 'error' : ''}
-                />
-                {errors.email && <ErrorMessage>{errors.email}</ErrorMessage>}
-              </FormGroup>
-            </FormRow>
+            <ContactList>
+              <ContactItem>
+                <span className="icon"><Phone size={18} /></span>
+                <span>
+                  <span className="label">Call / WhatsApp</span>
+                  <a href="tel:+255672715657">+255 672 715 657</a>
+                </span>
+              </ContactItem>
+              <ContactItem>
+                <span className="icon"><Mail size={18} /></span>
+                <span>
+                  <span className="label">Email</span>
+                  <a href="mailto:info@preetiedecor.com">info@preetiedecor.com</a>
+                </span>
+              </ContactItem>
+              <ContactItem>
+                <span className="icon"><MapPin size={18} /></span>
+                <span>
+                  <span className="label">Location</span>
+                  Msasani, Dar es Salaam, Tanzania
+                </span>
+              </ContactItem>
+              <ContactItem>
+                <span className="icon"><Clock size={18} /></span>
+                <span>
+                  <span className="label">Hours</span>
+                  Mon – Sat, 9:00 AM – 6:00 PM
+                </span>
+              </ContactItem>
+            </ContactList>
+          </InfoPanel>
 
-            <FormGroup>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="+255 672 715 657"
-              />
-            </FormGroup>
+          <FormPanel>
+            {isSubmitted ? (
+              <SuccessMessage>
+                <CheckCircle2 className="success-icon" size={64} />
+                <h3>Thank You!</h3>
+                <p>Your message has been sent successfully.</p>
+                <p>We'll get back to you within 24 hours.</p>
+              </SuccessMessage>
+            ) : (
+              <>
+                <FormHeading>Send us a message</FormHeading>
+                <FormSub>We'd love to hear about your event.</FormSub>
 
-            <FormGroup>
-              <Label htmlFor="eventType">Event Type</Label>
-              <Select
-                id="eventType"
-                name="eventType"
-                value={formData.eventType}
-                onChange={handleChange}
-              >
-                <option value="">Select an event type</option>
-                <option value="wedding">💍 Wedding</option>
-                <option value="birthday">🎂 Birthday</option>
-                <option value="bridal">👰 Bridal Shower</option>
-                <option value="corporate">💼 Corporate</option>
-                <option value="anniversary">💝 Anniversary</option>
-                <option value="other">✨ Other</option>
-              </Select>
-            </FormGroup>
+                <Form onSubmit={handleSubmit}>
+                  <FormRow>
+                    <FormGroup>
+                      <Label htmlFor="name">
+                        Name <RequiredStar>*</RequiredStar>
+                      </Label>
+                      <Input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Harpreet Kaur"
+                        className={errors.name ? 'error' : ''}
+                      />
+                      {errors.name && <ErrorMessage>{errors.name}</ErrorMessage>}
+                    </FormGroup>
 
-            <FormGroup>
-              <Label htmlFor="message">
-                Message <RequiredStar>*</RequiredStar>
-              </Label>
-              <TextArea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                placeholder="Tell us about your event, vision, and requirements..."
-                className={errors.message ? 'error' : ''}
-              />
-              {errors.message && <ErrorMessage>{errors.message}</ErrorMessage>}
-            </FormGroup>
+                    <FormGroup>
+                      <Label htmlFor="email">
+                        Email <RequiredStar>*</RequiredStar>
+                      </Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="harpreet@example.com"
+                        className={errors.email ? 'error' : ''}
+                      />
+                      {errors.email && <ErrorMessage>{errors.email}</ErrorMessage>}
+                    </FormGroup>
+                  </FormRow>
 
-            {submitError && (
-              <ErrorMessage style={{ textAlign: 'center', color: theme.colors.danger }}>
-                {submitError}
-              </ErrorMessage>
+                  <FormGroup>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+255 672 715 657"
+                    />
+                  </FormGroup>
+
+                  <FormGroup>
+                    <Label htmlFor="eventType">Event Type</Label>
+                    <Select
+                      id="eventType"
+                      name="eventType"
+                      value={formData.eventType}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select an event type</option>
+                      <option value="wedding">💍 Wedding</option>
+                      <option value="birthday">🎂 Birthday</option>
+                      <option value="bridal">👰 Bridal Shower</option>
+                      <option value="corporate">💼 Corporate</option>
+                      <option value="anniversary">💝 Anniversary</option>
+                      <option value="other">✨ Other</option>
+                    </Select>
+                  </FormGroup>
+
+                  <FormGroup>
+                    <Label htmlFor="message">
+                      Message <RequiredStar>*</RequiredStar>
+                    </Label>
+                    <TextArea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Tell us about your event, vision, and requirements..."
+                      className={errors.message ? 'error' : ''}
+                    />
+                    {errors.message && <ErrorMessage>{errors.message}</ErrorMessage>}
+                  </FormGroup>
+
+                  {submitError && (
+                    <ErrorMessage style={{ textAlign: 'center', color: theme.colors.danger }}>
+                      {submitError}
+                    </ErrorMessage>
+                  )}
+
+                  <SubmitButton type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        Sending...
+                        <Loader2 className="spin" size={18} />
+                      </>
+                    ) : (
+                      <>
+                        Send Message
+                        <Send size={18} />
+                      </>
+                    )}
+                  </SubmitButton>
+                </Form>
+              </>
             )}
-
-            <SubmitButton type="submit" disabled={isSubmitting} isSubmitting={isSubmitting}>
-              {isSubmitting ? 'Sending...' : 'Send Message'}
-              {isSubmitting ? '⏳' : '✈️'}
-            </SubmitButton>
-          </Form>
-        )}
-      </Section>
+          </FormPanel>
+        </Card>
+      </Page>
     </>
   );
 };
