@@ -7,16 +7,18 @@ import Logo from './Logo';
 /* ── Top bar: kept only to hold the logo and reserve layout space ───────────── */
 const NavbarContainer = styled.nav`
   width: 100%;
-  background-color: ${theme.colors.primary};
-  position: sticky;
+  background-color: transparent;
+  position: absolute;
   top: 0;
+  left: 0;
   z-index: 1000;
-  height: 70px;
+  height: 88px;
   display: flex;
   align-items: center;
+  pointer-events: none;
 
   @media (max-width: ${theme.breakpoints.tablet}) {
-    height: 65px;
+    height: 74px;
   }
 `;
 
@@ -36,10 +38,10 @@ const NavContent = styled.div`
 /* ── Floating bubble button (fixed top-right, sits above the panel) ─────────── */
 const Bubble = styled.button<{ $open: boolean; $reduce: boolean }>`
   position: fixed;
-  top: 11px;
-  right: 20px;
-  width: 48px;
-  height: 48px;
+  top: 18px;
+  right: 24px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   border: none;
   background: ${theme.colors.white};
@@ -62,7 +64,7 @@ const Bubble = styled.button<{ $open: boolean; $reduce: boolean }>`
   }
 
   @media (max-width: ${theme.breakpoints.tablet}) {
-    top: 9px;
+    top: 14px;
   }
 `;
 

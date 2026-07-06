@@ -28,7 +28,7 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.6;
     background-color: ${theme.colors.light};
     color: ${theme.colors.dark};
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   img {

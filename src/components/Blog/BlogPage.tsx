@@ -52,13 +52,16 @@ const BlogGrid = styled.div`
   }
 `;
 
-const BlogCard = styled.article`
+const BlogCard = styled(Link)`
+  display: block;
   background: white;
   border-radius: 15px;
   overflow: hidden;
   min-width: 0;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: inherit;
 
   &:hover {
     transform: translateY(-10px);
@@ -140,20 +143,15 @@ const BlogExcerpt = styled.p`
   overflow-wrap: break-word;
 `;
 
-const ReadMoreLink = styled(Link)`
-  background: transparent;
-  border: none;
+const ReadMoreLink = styled.span`
   color: ${theme.colors.primary};
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0;
-  cursor: pointer;
   transition: gap 0.3s ease;
-  text-decoration: none;
 
-  &:hover {
+  ${BlogCard}:hover & {
     gap: 12px;
   }
 
@@ -184,7 +182,7 @@ const BlogPage: React.FC = () => {
 
           <BlogGrid>
             {blogPosts.map((post) => (
-              <BlogCard key={post.id}>
+              <BlogCard key={post.id} to={`/blog/${post.slug}`}>
                 <BlogImage>
                   <img src={post.image} alt={post.title} />
                   <Category>{post.category}</Category>
@@ -202,7 +200,7 @@ const BlogPage: React.FC = () => {
                   </BlogMeta>
                   <BlogTitle>{post.title}</BlogTitle>
                   <BlogExcerpt>{post.excerpt}</BlogExcerpt>
-                  <ReadMoreLink to={`/blog/${post.slug}`}>
+                  <ReadMoreLink>
                     Read More
                     <ArrowRight />
                   </ReadMoreLink>
