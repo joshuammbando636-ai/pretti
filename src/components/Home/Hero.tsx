@@ -21,7 +21,7 @@ const Stage = styled.div`
 
 const ZoomImage = styled.div<{ $reduced: boolean }>`
   position: relative;
-  background-image: url('/images/ceo.png');
+  background-image: url('/images/booth.jpg');
   background-size: cover;
   background-position: center top;
   background-color: ${theme.colors.grayLight};
@@ -43,6 +43,49 @@ const ZoomImage = styled.div<{ $reduced: boolean }>`
             height: 62vh;
           }
         `}
+`;
+
+const Annotation = styled.div<{ $position: 'top' | 'bottom' }>`
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+
+  ${p =>
+    p.$position === 'top'
+      ? css`
+          top: 14%;
+          left: 4%;
+          flex-direction: row;
+        `
+      : css`
+          bottom: 14%;
+          right: 4%;
+          flex-direction: row-reverse;
+        `}
+
+  @media (max-width: ${theme.breakpoints.tablet}) {
+    display: none;
+  }
+`;
+
+const AnnotationLine = styled.svg`
+  width: 90px;
+  height: 30px;
+  overflow: visible;
+  color: ${theme.colors.dark};
+`;
+
+const AnnotationText = styled.span`
+  font-family: ${theme.fonts.body};
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: ${theme.colors.dark};
+  white-space: nowrap;
 `;
 
 const TopFade = styled.div<{ $reduced: boolean }>`
@@ -158,6 +201,32 @@ const Hero: React.FC = () => {
     <>
       <Stage ref={stageRef}>
         <ZoomImage ref={imageRef} $reduced={prefersReducedMotion} />
+        {!prefersReducedMotion && (
+          <>
+            <Annotation $position="top">
+              <AnnotationLine viewBox="0 0 100 30" fill="none">
+                <path
+                  d="M2,20 C25,2 45,32 68,14 C80,6 88,10 96,4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </AnnotationLine>
+              <AnnotationText>Premium Service</AnnotationText>
+            </Annotation>
+            <Annotation $position="bottom">
+              <AnnotationLine viewBox="0 0 100 30" fill="none">
+                <path
+                  d="M2,20 C25,2 45,32 68,14 C80,6 88,10 96,4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </AnnotationLine>
+              <AnnotationText>Sophisticated Style</AnnotationText>
+            </Annotation>
+          </>
+        )}
         <TopFade ref={fadeRef} $reduced={prefersReducedMotion} />
       </Stage>
 

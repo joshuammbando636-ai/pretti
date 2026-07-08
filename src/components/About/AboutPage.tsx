@@ -280,7 +280,7 @@ const awards: AwardItem[] = [
     name: 'Africa Interior Design Award 2026',
     desc: 'Winner · Best Event Decoration · Pan-African Excellence',
     modalTitle: 'Africa Interior Design Award 2026 — Winner',
-    image: '/images/aww.jpeg',
+    image: '/images/award.jpeg',
     caption: 'Best Event Decoration · Pan-African Excellence',
   },
   {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import styled, { css } from 'styled-components';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -7,6 +7,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { theme } from '../../styles/theme';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const heroVideoSrc = encodeURI(
+  '/videos/A full setup brought to life with passion_ detail and elegance ✨_From the handcrafted backdrop to the thoughtfully styled table and every cultural touch i(.mp4'
+);
 
 const VideoHeroWrapper = styled.div<{ $reduced: boolean }>`
   position: relative;
@@ -261,7 +265,7 @@ const ShowcaseCTA = styled.button`
 `;
 
 const StorySection = styled.section`
-  background: ${theme.colors.dark};
+  background: ${theme.colors.light};
   padding: ${theme.spacing.xxlarge} ${theme.spacing.large};
   display: flex;
   align-items: center;
@@ -270,159 +274,16 @@ const StorySection = styled.section`
 `;
 
 const StoryParagraph = styled.p`
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   font-family: ${theme.fonts.heading};
   font-weight: 500;
-  font-size: clamp(1.6rem, 4vw, 3rem);
-  line-height: 1.45;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.4;
 `;
 
 const StoryWord = styled.span`
-  color: rgba(255, 255, 255, 0.2);
-`;
-
-const ResultsHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${theme.spacing.medium};
-  margin: ${theme.spacing.large} auto ${theme.spacing.medium};
-  font-family: ${theme.fonts.body};
-  color: ${theme.colors.textLight};
-  font-size: 0.95rem;
-`;
-
-const ResetButton = styled.button`
-  padding: 0.4rem 1.1rem;
-  border-radius: ${theme.borderRadius.round};
-  border: 1px solid ${theme.colors.grayLight};
-  background: ${theme.colors.white};
-  color: ${theme.colors.textLight};
-  font-family: ${theme.fonts.body};
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: border-color 0.25s ease, color 0.25s ease;
-
-  &:hover,
-  &:focus-visible {
-    border-color: ${theme.colors.primary};
-    color: ${theme.colors.primary};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${theme.colors.primary};
-    outline-offset: 2px;
-  }
-`;
-
-const ResultsSection = styled.section`
-  padding: ${theme.spacing.xlarge} ${theme.spacing.large};
-  background: #f9e6ec;
-  text-align: center;
-`;
-
-const ResultsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: ${theme.spacing.medium};
-  padding: ${theme.spacing.xlarge} ${theme.spacing.large} ${theme.spacing.xlarge};
-
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: ${theme.spacing.small};
-    padding: ${theme.spacing.large} ${theme.spacing.medium} ${theme.spacing.large};
-  }
-
-  @media (max-width: ${theme.breakpoints.mobile}) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Card = styled.figure`
-  position: relative;
-  aspect-ratio: 4 / 3;
-  background: ${theme.colors.white};
-  border: 4px solid ${theme.colors.white};
-  border-radius: ${theme.borderRadius.medium};
-  overflow: hidden;
-  box-shadow: ${theme.shadows.medium};
-  cursor: pointer;
-  margin: 0;
-  z-index: 1;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.35s step-end;
-
-  &:hover {
-    z-index: 5;
-    box-shadow: ${theme.shadows.hover};
-  }
-
-  @media (min-width: ${theme.breakpoints.tablet}) {
-    &:nth-child(3n+2) {
-      transform: translateY(32px);
-      margin-bottom: -32px;
-    }
-    &:nth-child(3n+2):hover {
-      transform: translateY(20px);
-    }
-
-    &:nth-child(3n+3) {
-      transform: translateY(-18px);
-      margin-bottom: 18px;
-    }
-    &:nth-child(3n+3):hover {
-      transform: translateY(-28px);
-    }
-
-    &:nth-child(3n+1):hover {
-      transform: translateY(-10px);
-    }
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-`;
-
-const FigCaption = styled.figcaption`
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  padding: ${theme.spacing.medium};
-  text-align: left;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.25) 55%, transparent 100%);
-
-  span {
-    display: inline-block;
-    font-family: ${theme.fonts.body};
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
-    margin-bottom: 4px;
-  }
-
-  h3 {
-    margin: 0 0 4px 0;
-    color: ${theme.colors.white};
-    font-size: 1.4rem;
-    font-family: ${theme.fonts.heading};
-    font-weight: 700;
-    line-height: 1.1;
-  }
-
-  p {
-    margin: 2px 0;
-    font-size: 0.78rem;
-    color: rgba(255, 255, 255, 0.85);
-    font-family: ${theme.fonts.body};
-  }
+  color: rgba(45, 52, 54, 0.25);
 `;
 
 const LightboxOverlay = styled.div<{ $open: boolean }>`
@@ -713,13 +574,11 @@ const storyText =
 const storyWords = storyText.split(' ');
 
 const GalleryPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
   const storyRef = useRef<HTMLParagraphElement>(null);
   const [prefersReducedMotion] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -735,15 +594,6 @@ const GalleryPage: React.FC = () => {
     mobileQuery.addEventListener('change', syncMobile);
     return () => mobileQuery.removeEventListener('change', syncMobile);
   }, []);
-
-  const filteredItems = useMemo(
-    () => (selectedCategory === 'All' ? galleryItems : galleryItems.filter(item => item.category === selectedCategory)),
-    [selectedCategory]
-  );
-
-  useEffect(() => {
-    setActiveIndex(null);
-  }, [selectedCategory]);
 
   useLayoutEffect(() => {
     if (prefersReducedMotion) return;
@@ -811,7 +661,7 @@ const GalleryPage: React.FC = () => {
       const words = story.querySelectorAll('span');
 
       gsap.to(words, {
-        color: '#ffffff',
+        color: theme.colors.dark,
         stagger: 0.03,
         ease: 'none',
         scrollTrigger: {
@@ -826,21 +676,18 @@ const GalleryPage: React.FC = () => {
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
-  const handleShowcaseSelect = useCallback((category: Category) => {
-    setSelectedCategory(category);
-    requestAnimationFrame(() => {
-      resultsRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
-    });
-  }, [prefersReducedMotion]);
+  const openLightbox = useCallback((index: number) => {
+    setActiveIndex(index);
+  }, []);
 
   const close = useCallback(() => setActiveIndex(null), []);
   const showPrev = useCallback(
-    () => setActiveIndex(i => (i === null ? null : (i - 1 + filteredItems.length) % filteredItems.length)),
-    [filteredItems.length]
+    () => setActiveIndex(i => (i === null ? null : (i - 1 + showcaseItems.length) % showcaseItems.length)),
+    []
   );
   const showNext = useCallback(
-    () => setActiveIndex(i => (i === null ? null : (i + 1) % filteredItems.length)),
-    [filteredItems.length]
+    () => setActiveIndex(i => (i === null ? null : (i + 1) % showcaseItems.length)),
+    []
   );
 
   useEffect(() => {
@@ -856,7 +703,7 @@ const GalleryPage: React.FC = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [activeIndex, close, showPrev, showNext]);
 
-  const activeItem = activeIndex !== null ? filteredItems[activeIndex] : null;
+  const activeItem = activeIndex !== null ? showcaseItems[activeIndex] : null;
 
   return (
     <>
@@ -880,9 +727,8 @@ const GalleryPage: React.FC = () => {
             muted
             playsInline
             preload="metadata"
-            poster="/videos/vv21-poster.jpg"
           >
-            <source src="/videos/vv21.mp4" type="video/mp4" />
+            <source src={heroVideoSrc} type="video/mp4" />
           </HeroVideo>
         </VideoStage>
       </VideoHeroWrapper>
@@ -921,7 +767,7 @@ const GalleryPage: React.FC = () => {
         {isMobile || prefersReducedMotion ? (
           <ShowcaseMobileStack>
             {showcaseItems.map((item, i) => (
-              <ShowcasePanel key={`${item.id}-${i}`} $stacked onClick={() => handleShowcaseSelect(item.category)}>
+              <ShowcasePanel key={`${item.id}-${i}`} $stacked onClick={() => openLightbox(i)}>
                 <ShowcaseImage
                   src={item.image}
                   alt={`${item.category} event decor by Preetie Decor`}
@@ -931,8 +777,8 @@ const GalleryPage: React.FC = () => {
                 <ShowcaseLabel>{item.category}</ShowcaseLabel>
                 <ShowcaseCTA
                   type="button"
-                  aria-label={`Discover ${item.category} photos`}
-                  onClick={e => { e.stopPropagation(); handleShowcaseSelect(item.category); }}
+                  aria-label={`View ${item.category} photo`}
+                  onClick={e => { e.stopPropagation(); openLightbox(i); }}
                 >
                   Discover
                 </ShowcaseCTA>
@@ -943,7 +789,7 @@ const GalleryPage: React.FC = () => {
           <ShowcaseWrapper ref={wrapperRef}>
             <ShowcaseTrack ref={trackRef}>
               {showcaseItems.map((item, i) => (
-                <ShowcasePanel key={`${item.id}-${i}`} $stacked={false} onClick={() => handleShowcaseSelect(item.category)}>
+                <ShowcasePanel key={`${item.id}-${i}`} $stacked={false} onClick={() => openLightbox(i)}>
                   <ShowcaseImageWrap>
                     <ShowcaseImage
                       src={item.image}
@@ -954,8 +800,8 @@ const GalleryPage: React.FC = () => {
                     <ShowcaseLabel>{item.category}</ShowcaseLabel>
                     <ShowcaseCTA
                       type="button"
-                      aria-label={`Discover ${item.category} photos`}
-                      onClick={e => { e.stopPropagation(); handleShowcaseSelect(item.category); }}
+                      aria-label={`View ${item.category} photo`}
+                      onClick={e => { e.stopPropagation(); openLightbox(i); }}
                     >
                       Discover
                     </ShowcaseCTA>
@@ -978,31 +824,6 @@ const GalleryPage: React.FC = () => {
           ))}
         </StoryParagraph>
       </StorySection>
-
-      <ResultsSection ref={resultsRef}>
-        <ResultsHeader aria-live="polite">
-          <span>Showing: {selectedCategory === 'All' ? 'All photos' : selectedCategory}</span>
-          {selectedCategory !== 'All' && (
-            <ResetButton type="button" onClick={() => setSelectedCategory('All')}>
-              View all photos
-            </ResetButton>
-          )}
-        </ResultsHeader>
-
-        <ResultsGrid>
-          {filteredItems.map((item, index) => (
-            <Card key={item.id} onClick={() => setActiveIndex(index)}>
-              <img src={item.image} alt={item.title} loading="lazy" />
-              <FigCaption>
-                <span>{item.category}</span>
-                <h3>{item.title}</h3>
-                <p>{item.location}</p>
-                <p>{item.date}</p>
-              </FigCaption>
-            </Card>
-          ))}
-        </ResultsGrid>
-      </ResultsSection>
 
       <LightboxOverlay $open={activeItem !== null} onClick={close}>
         {activeItem && (
