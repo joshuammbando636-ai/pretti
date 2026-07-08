@@ -1,14 +1,14 @@
 export const theme = {
   colors: {
     primary: '#b3002d',
-    primaryLight: '#b30059',
-    secondary: '#c44569',
-    accent: '#e66767',
+    primaryLight: '#9c3d57',
+    secondary: '#b5677a',
+    accent: '#d98f88',
     dark: '#2d3436',
     grayDark: '#636e72',
     gray: '#b2bec3',
     grayLight: '#dfe6e9',
-    light: '#f9f1f3',
+    light: '#f8f4f2',
     white: '#ffffff',
     success: '#00b894',
     warning: '#fdcb6e',
@@ -16,17 +16,18 @@ export const theme = {
     text: '#2d3436',
     textLight: '#636e72',
     primaryHover: '#8a1c3a',
-    secondaryHover: '#a5556f',
+    secondaryHover: '#9c5568',
   },
   gradients: {
-    primary: 'linear-gradient(135deg, #b3002d, #c44569)',
-    secondary: 'linear-gradient(135deg, #c44569, #e66767)',
-    light: 'linear-gradient(135deg, #f9f1f3, #ffffff)',
-    accent: 'linear-gradient(135deg, #b30059, #c44569)',
+    primary: 'linear-gradient(135deg, #b3002d, #b5677a)',
+    secondary: 'linear-gradient(135deg, #b5677a, #d98f88)',
+    light: 'linear-gradient(135deg, #f8f4f2, #ffffff)',
+    accent: 'linear-gradient(135deg, #9c3d57, #b5677a)',
   },
   fonts: {
     heading: "'Playfair Display', serif",
-    body: "'Poppins', sans-serif"
+    body: "'Outfit', sans-serif",
+    accent: "'Parisienne', cursive"
   },
   breakpoints: {
     mobile: '480px',

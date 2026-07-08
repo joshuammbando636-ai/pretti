@@ -1,8 +1,9 @@
-import { Suspense, lazy } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Suspense, lazy, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { createGlobalStyle } from 'styled-components'
 import Layout from './components/Layout/Layout'
 import WhatsAppButton from './components/WhatsAppButton'
+import Preloader from './components/Layout/Preloader'
 import { theme } from './styles/theme'
 
 const HomePage = lazy(() => import('./components/Home/HomePage'))
@@ -47,6 +48,15 @@ const GlobalStyle = createGlobalStyle`
     outline-offset: 2px;
   }
 
+  /* Site content blurs in as the preloader fades away */
+  .site-wrapper {
+    transition: filter 1s ease;
+  }
+
+  body.site-blurred .site-wrapper {
+    filter: blur(24px);
+  }
+
   /* Responsive typography */
   @media (max-width: ${theme.breakpoints.tablet}) {
     html {
@@ -61,6 +71,15 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
+// Reset scroll to the top on every route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   // Your WhatsApp number - make sure to use international format without '+'
   const whatsappNumber = '255672715657'; // +255 672 715 657
@@ -69,26 +88,30 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <BrowserRouter>
-        <Suspense fallback={null}>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<HomePage />} />
-              <Route path="about" element={<AboutPage />} />
-              <Route path="events" element={<EventsPage />} />
-              <Route path="gallery" element={<GalleryPage />} />
-              <Route path="contact" element={<ContactPage />} />
-              <Route path="blog" element={<BlogPage />} />
-              <Route path="blog/:slug" element={<BlogPost />} />
-            </Route>
-          </Routes>
-        </Suspense>
-        {/* WhatsApp Button appears on all pages */}
-        <WhatsAppButton
-          phoneNumber={whatsappNumber}
-          message={whatsappMessage}
-        />
-      </BrowserRouter>
+      <Preloader />
+      <div className="site-wrapper">
+        <BrowserRouter>
+          <ScrollToTop />
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<HomePage />} />
+                <Route path="about" element={<AboutPage />} />
+                <Route path="events" element={<EventsPage />} />
+                <Route path="gallery" element={<GalleryPage />} />
+                <Route path="contact" element={<ContactPage />} />
+                <Route path="blog" element={<BlogPage />} />
+                <Route path="blog/:slug" element={<BlogPost />} />
+              </Route>
+            </Routes>
+          </Suspense>
+          {/* WhatsApp Button appears on all pages */}
+          <WhatsAppButton
+            phoneNumber={whatsappNumber}
+            message={whatsappMessage}
+          />
+        </BrowserRouter>
+      </div>
     </>
   )
 }

@@ -14,81 +14,11 @@ const fadeInUp = keyframes`
   }
 `;
 
-// Video Hero Section
-const VideoHeroSection = styled.section`
-  position: relative;
-  width: 100%;
-  height: 80vh;
-  overflow: hidden;
-`;
-
-const VideoBackground = styled.video`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none; /* THIS FIXES SCROLL ISSUE */
-`;
-
-const Overlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1;
-`;
-
-const VideoContent = styled.div`
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: white;
-  text-align: center;
-  padding: 0 20px;
-`;
-
-const VideoTitle = styled.h1`
-  font-family: ${theme.fonts.heading};
-  font-size: 5rem;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-  animation: ${fadeInUp} 1s ease;
-
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    font-size: 3.5rem;
-  }
-
-  @media (max-width: ${theme.breakpoints.mobile}) {
-    font-size: 2.5rem;
-  }
-`;
-
-const VideoSubtitle = styled.p`
-  font-family: ${theme.fonts.body};
-  font-size: 1.5rem;
-  max-width: 700px;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-  animation: ${fadeInUp} 1s ease 0.2s both;
-
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    font-size: 1.2rem;
-  }
-`;
-
 // Original Events Section
 const Section = styled.section`
   text-align: center;
   padding: ${theme.spacing.xlarge} ${theme.spacing.large};
-  background: linear-gradient(135deg, #fff9f9 0%, #fff0f3 100%);
+  background: ${theme.gradients.light};
   position: relative;
   overflow: hidden;
 `;
@@ -103,7 +33,7 @@ const HeroContent = styled.div`
 const Title = styled.h1`
   font-family: ${theme.fonts.heading};
   font-size: 3.5rem;
-  color: #d44e6c;
+  color: ${theme.colors.secondary};
   margin-bottom: 10px;
   line-height: 1.2;
   animation: ${fadeInUp} 0.8s ease;
@@ -116,7 +46,7 @@ const Title = styled.h1`
 const Subtitle = styled.p`
   font-family: ${theme.fonts.body};
   font-size: 1.2rem;
-  color: #a67c8d;
+  color: ${theme.colors.textLight};
   font-weight: 300;
   animation: ${fadeInUp} 0.8s ease 0.2s both;
 `;
@@ -139,13 +69,13 @@ const Card = styled.div<{ index: number }>`
   background: white;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(212, 78, 108, 0.1);
+  box-shadow: ${theme.shadows.card};
   transition: transform 0.3s ease;
   animation: ${fadeInUp} 0.8s ease ${props => props.index * 0.1}s both;
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(212, 78, 108, 0.15);
+    box-shadow: ${theme.shadows.hover};
   }
 `;
 
@@ -174,14 +104,14 @@ const CardContent = styled.div`
 const EventTitle = styled.h2`
   font-family: ${theme.fonts.heading};
   font-size: 2rem;
-  color: #d44e6c;
+  color: ${theme.colors.secondary};
   margin-bottom: 10px;
 `;
 
 const EventDescription = styled.p`
   font-family: ${theme.fonts.body};
   font-size: 1rem;
-  color: #6d4c5d;
+  color: ${theme.colors.textLight};
   line-height: 1.6;
   margin: 0;
 `;
@@ -190,7 +120,7 @@ const Decoration = styled.div<{ top?: string; left?: string; right?: string; bot
   position: absolute;
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, #ffd5df 0%, transparent 70%);
+  background: radial-gradient(circle, ${theme.colors.light} 0%, transparent 70%);
   border-radius: 50%;
   z-index: 0;
   top: ${props => props.top || 'auto'};
@@ -238,22 +168,6 @@ const EventsPage: React.FC = () => {
         <meta name="geo.position" content="-6.7924;39.2083" />
         <meta name="ICBM" content="-6.7924, 39.2083" />
       </Helmet>
-      {/* Video Hero Section */}
-      <VideoHeroSection>
-        <VideoBackground autoPlay loop muted playsInline preload="metadata">
-          {/* Add your video file to public/videos/ folder */}
-          <source src="/videos/vv21.mp4" type="video/mp4" />
-          {/* Fallback text if video doesn't load */}
-          Your browser does not support the video tag.
-        </VideoBackground>
-        <Overlay />
-        <VideoContent>
-          <VideoTitle>Our Events</VideoTitle>
-          <VideoSubtitle>Creating unforgettable moments for every celebration</VideoSubtitle>
-        </VideoContent>
-      </VideoHeroSection>
-
-      {/* Original Events Content */}
       <Section>
         <Decoration top="5%" left="5%" />
         <Decoration bottom="5%" right="5%" />

@@ -13,7 +13,7 @@ const fadeIn = keyframes`
 /* ── Layout ─────────────────────────────────────────────────────────────────── */
 const Section = styled.section`
   padding: ${theme.spacing.xxlarge} ${theme.spacing.large};
-  background: ${theme.colors.white};
+  background: ${theme.colors.light};
 
   @media (max-width: ${theme.breakpoints.mobile}) {
     padding: ${theme.spacing.xlarge} ${theme.spacing.medium};

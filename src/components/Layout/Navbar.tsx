@@ -18,7 +18,7 @@ const NavbarContainer = styled.nav`
   pointer-events: none;
 
   @media (max-width: ${theme.breakpoints.tablet}) {
-    height: 74px;
+    height: 112px;
   }
 `;
 
@@ -64,7 +64,9 @@ const Bubble = styled.button<{ $open: boolean; $reduce: boolean }>`
   }
 
   @media (max-width: ${theme.breakpoints.tablet}) {
-    top: 14px;
+    top: 20px;
+    width: 80px;
+    height: 80px;
   }
 `;
 
@@ -109,9 +111,7 @@ const Bar = styled.span<{ $open: boolean; $pos: 'top' | 'mid' | 'bot'; $reduce: 
 const Backdrop = styled.div<{ $open: boolean; $reduce: boolean }>`
   position: fixed;
   inset: 0;
-  background: rgba(20, 20, 20, 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(20, 20, 20, 0.65);
   z-index: 2000;
   opacity: ${p => (p.$open ? 1 : 0)};
   visibility: ${p => (p.$open ? 'visible' : 'hidden')};
@@ -162,7 +162,7 @@ const DesktopLink = styled(Link)<{ $active: boolean; $reduce: boolean }>`
   padding: 0.4rem 0;
   perspective: 700px;
   font-family: ${theme.fonts.heading};
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 3.6vw, 3rem);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 1px;
@@ -189,12 +189,12 @@ const Char = styled.span`
 /* ── Mobile panel: small bouncy card anchored top-right ─────────────────────── */
 const MobilePanel = styled.nav<{ $open: boolean; $reduce: boolean }>`
   position: fixed;
-  top: 70px;
+  top: 108px;
   right: 12px;
   width: min(78vw, 280px);
-  background: rgba(249, 241, 243, 0.92);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(249, 241, 243, 0.95);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   border-radius: 24px;
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.25);
   z-index: 2100;
@@ -221,9 +221,9 @@ const MobileLink = styled(Link)<{ $active: boolean }>`
   display: block;
   text-align: center;
   font-family: ${theme.fonts.body};
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 500;
-  padding: 0.85rem 1rem;
+  padding: 0.95rem 1rem;
   border-radius: 14px;
   text-decoration: none;
   color: ${p => (p.$active ? theme.colors.primary : theme.colors.dark)};

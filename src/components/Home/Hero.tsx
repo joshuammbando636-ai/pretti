@@ -1,206 +1,181 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
-import styled from 'styled-components';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import styled, { css } from 'styled-components';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { theme } from '../../styles/theme';
 
-const HeroSection = styled.section`
+gsap.registerPlugin(ScrollTrigger);
+
+const Stage = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  background-color: #2d3436; /* Fallback color while loading */
+  background: ${theme.colors.light};
 `;
 
-const SlidesContainer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
-
-const BackgroundImage = styled.div<{ image: string; isActive: boolean; isLoaded: boolean }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url(${props => props.image});
+const ZoomImage = styled.div<{ $reduced: boolean }>`
+  position: relative;
+  background-image: url('/images/ceo.png');
   background-size: cover;
-  background-position: center;
-  opacity: ${props => (props.isActive && props.isLoaded) ? 1 : 0};
-  transition: opacity 0.6s ease-in-out;
-  filter: brightness(0.7);
-  background-color: #2d3436; /* Fallback color */
-  
-  /* Hardware acceleration */
-  transform: translateZ(0);
-  will-change: opacity;
+  background-position: center top;
+  background-color: ${theme.colors.grayLight};
+  will-change: width, height;
+
+  ${p =>
+    p.$reduced
+      ? css`
+          width: 100vw;
+          height: 100vh;
+          height: 100svh;
+        `
+      : css`
+          height: 78vh;
+          width: auto;
+          aspect-ratio: 9 / 16;
+
+          @media (max-width: ${theme.breakpoints.tablet}) {
+            height: 62vh;
+          }
+        `}
 `;
 
-const VideoBackground = styled.video<{ isActive: boolean }>`
+const TopFade = styled.div<{ $reduced: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: ${props => props.isActive ? 1 : 0};
-  transition: opacity 0.6s ease-in-out;
-  filter: brightness(0.7);
-  z-index: ${props => props.isActive ? 1 : 0};
-  
-  transform: translateZ(0);
-  will-change: opacity;
-`;
-
-const Overlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.3) 100%
-  );
-  z-index: 2;
-`;
-
-const Content = memo(styled.div`
-  position: absolute;
-  top: 50%;
-  left: 10%;
-  transform: translateY(-50%);
+  height: 40vh;
+  background: linear-gradient(to bottom, ${theme.colors.light} 0%, rgba(248, 244, 242, 0) 100%);
+  pointer-events: none;
   z-index: 3;
-  color: white;
-  max-width: 600px;
+  opacity: ${p => (p.$reduced ? 1 : 0)};
+`;
 
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    left: 5%;
-    right: 5%;
-    text-align: center;
-    max-width: 100%;
-  }
-`);
+const CaptionBlock = styled.div`
+  text-align: center;
+  background: ${theme.colors.light};
+  padding: ${theme.spacing.xlarge} ${theme.spacing.large};
+`;
 
-const Title = memo(styled.h1`
-  font-family: ${theme.fonts.heading};
-  font-size: 5rem;
-  color: white;
-  margin-bottom: 1rem;
+const Signature = styled.p`
+  font-family: ${theme.fonts.accent};
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  color: ${theme.colors.primary};
+  margin-bottom: ${theme.spacing.large};
+`;
 
-  span {
-    color: ${theme.colors.accent};
-    display: block;
-    font-size: 3.5rem;
-  }
-
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    font-size: 3.5rem;
-    span {
-      font-size: 2.5rem;
-    }
-  }
-`);
-
-const Description = memo(styled.p`
+const CTA = styled(Link)`
+  display: inline-block;
   font-family: ${theme.fonts.body};
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
-  max-width: 500px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: ${theme.colors.white};
+  background: ${theme.gradients.primary};
+  padding: 0.95rem 2.4rem;
+  border-radius: ${theme.borderRadius.round};
+  box-shadow: ${theme.shadows.medium};
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-  @media (max-width: ${theme.breakpoints.tablet}) {
-    margin: 0 auto;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: ${theme.shadows.hover};
   }
-`);
+`;
+
+const BioSection = styled.section`
+  background: ${theme.colors.light};
+  padding: ${theme.spacing.xxlarge} ${theme.spacing.large};
+  text-align: center;
+`;
+
+const BioText = styled.p`
+  max-width: 720px;
+  margin: 0 auto;
+  font-family: ${theme.fonts.body};
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: ${theme.colors.textLight};
+`;
 
 const Hero: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [prefersReducedMotion] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+  const stageRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const fadeRef = useRef<HTMLDivElement>(null);
 
-  const slides = [
-    { type: 'image', src: '/images/booth.jpg' },
-    { type: 'image', src: '/images/latable.jpg' },
-    { type: 'image', src: '/images/dec.jpg' },
-  ];
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) return;
+    const stage = stageRef.current;
+    const image = imageRef.current;
+    const fade = fadeRef.current;
+    if (!stage || !image || !fade) return;
 
-  // Load first image immediately
-  useEffect(() => {
-    const firstImage = slides[0];
-    if (firstImage.type === 'image') {
-      const img = new Image();
-      img.onload = () => {
-        setLoadedImages(prev => new Set(prev).add(firstImage.src));
-      };
-      img.src = firstImage.src;
-    }
-  }, []);
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: stage,
+          start: 'top top',
+          end: () => `+=${window.innerHeight}`,
+          pin: true,
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      });
 
-  // Load only current and next image - not all at once
-  useEffect(() => {
-    slides.forEach((slide, index) => {
-      if (index === currentIndex || index === (currentIndex + 1) % slides.length) {
-        if (slide.type === 'image' && !loadedImages.has(slide.src)) {
-          const img = new Image();
-          img.onload = () => {
-            setLoadedImages(prev => new Set(prev).add(slide.src));
-          };
-          img.src = slide.src;
-        }
-      }
-    });
-  }, [currentIndex]);
+      tl.to(
+        image,
+        {
+          width: '112vw',
+          height: '112vh',
+          ease: 'none',
+        },
+        0
+      ).to(
+        fade,
+        {
+          opacity: 1,
+          ease: 'none',
+        },
+        0
+      );
+    }, stage);
 
-  // Start carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [slides.length]);
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
 
   return (
-    <HeroSection>
-      <SlidesContainer>
-        {slides.map((slide, index) => (
-          slide.type === 'image' ? (
-            <BackgroundImage 
-              key={slide.src} 
-              image={slide.src} 
-              isActive={index === currentIndex}
-              isLoaded={loadedImages.has(slide.src)}
-            />
-          ) : (
-            <VideoBackground 
-              key={slide.src}
-              ref={index === currentIndex ? videoRef : null}
-              autoPlay 
-              loop 
-              muted 
-              playsInline
-              isActive={index === currentIndex}
-            >
-              <source src={slide.src} type="video/mp4" />
-            </VideoBackground>
-          )
-        ))}
-      </SlidesContainer>
-      
-      <Overlay />
-      
-      <Content>
-        <Title>
-          Elegant Events
-          <span>Styled with Love</span>
-        </Title>
-        <Description>
-          Creating beautiful moments and unforgettable memories 
-          through exceptional event design and decoration.
-        </Description>
-      </Content>
-    </HeroSection>
+    <>
+      <Stage ref={stageRef}>
+        <ZoomImage ref={imageRef} $reduced={prefersReducedMotion} />
+        <TopFade ref={fadeRef} $reduced={prefersReducedMotion} />
+      </Stage>
+
+      <CaptionBlock>
+        <Signature>Harpreet Kaur Dogra</Signature>
+        <CTA to="/contact">Plan Your Event</CTA>
+      </CaptionBlock>
+
+      <BioSection>
+        <BioText>
+          Founded in 2022 by Harpreet Kaur Dogra, Preetie Decor has grown into one of
+          Dar es Salaam's most trusted names in event styling — winner of the Africa
+          Interior Design Award 2024 for Best Event Decoration. From weddings and bridal
+          showers to birthdays and corporate celebrations, every setup is designed and
+          hand-arranged by a certified team who believe moments matter more than things.
+        </BioText>
+      </BioSection>
+    </>
   );
 };
 
