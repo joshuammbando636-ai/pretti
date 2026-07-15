@@ -142,6 +142,17 @@ const Socials = styled.div`
   }
 `;
 
+const PinterestIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 12.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+    <path d="M18 12.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+    <path d="M12 22c2-4 2-6 2-8" />
+    <path d="M12 22c-2-4-2-6-2-8" />
+    <path d="M8 12.5c.5 2 1.5 4 4 4s3.5-2 4-4" />
+  </svg>
+);
+
 const Footer: React.FC = () => {
   const [currentYear, setCurrentYear] = useState('');
 
@@ -204,6 +215,9 @@ const Footer: React.FC = () => {
             </a>
             <a href="http://www.tiktok.com/@preetie_decor" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
               <Music2 />
+            </a>
+            <a href="https://pin.it/wNN6Lb5bI" target="_blank" rel="noopener noreferrer" aria-label="Pinterest">
+              <PinterestIcon />
             </a>
           </Socials>
         </BottomBar>

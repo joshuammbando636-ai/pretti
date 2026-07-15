@@ -8,7 +8,7 @@ export const theme = {
     grayDark: '#636e72',
     gray: '#b2bec3',
     grayLight: '#dfe6e9',
-    light: '#f8f4f2',
+    light: '#fbdfe6',
     white: '#ffffff',
     success: '#00b894',
     warning: '#fdcb6e',
@@ -21,7 +21,7 @@ export const theme = {
   gradients: {
     primary: 'linear-gradient(135deg, #b3002d, #b5677a)',
     secondary: 'linear-gradient(135deg, #b5677a, #d98f88)',
-    light: 'linear-gradient(135deg, #f8f4f2, #ffffff)',
+    light: 'linear-gradient(135deg, #fbdfe6, #ffffff)',
     accent: 'linear-gradient(135deg, #9c3d57, #b5677a)',
   },
   fonts: {

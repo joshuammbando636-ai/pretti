@@ -479,6 +479,7 @@ const BlogPost: React.FC = () => {
       <Helmet>
         <title>{post.title} | Preetie Decor Blog</title>
         <meta name="description" content={post.excerpt} />
+        <link rel="canonical" href={`https://preetiedecor.com/blog/${post.slug}`} />
       </Helmet>
 
       <Inner>

@@ -715,6 +715,7 @@ const GalleryPage: React.FC = () => {
         <meta name="geo.placename" content="Dar es Salaam" />
         <meta name="geo.position" content="-6.7924;39.2083" />
         <meta name="ICBM" content="-6.7924, 39.2083" />
+        <link rel="canonical" href="https://preetiedecor.com/gallery" />
       </Helmet>
 
       <VideoHeroWrapper ref={videoWrapperRef} $reduced={prefersReducedMotion}>
