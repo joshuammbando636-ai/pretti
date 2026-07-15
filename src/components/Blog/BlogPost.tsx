@@ -18,6 +18,7 @@ interface BlogPost {
   image: string;
   slug: string;
   content: string;
+  quickAnswer?: string;
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────────── */
@@ -142,6 +143,27 @@ const PostTitle = styled.h1`
 
   @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 1.9rem;
+  }
+`;
+
+const QuickAnswer = styled.div`
+  background: ${theme.colors.light};
+  border: 1px solid ${theme.colors.primary}22;
+  border-left: 4px solid ${theme.colors.primary};
+  border-radius: ${theme.borderRadius.medium};
+  padding: 20px 22px;
+  margin-bottom: 36px;
+
+  p {
+    margin: 0;
+    font-family: ${theme.fonts.body};
+    color: ${theme.colors.text};
+    font-size: 1.02rem;
+    line-height: 1.65;
+  }
+
+  strong {
+    color: ${theme.colors.primary};
   }
 `;
 
@@ -472,7 +494,9 @@ const BlogPost: React.FC = () => {
 
   const { html, toc } = buildToc(formatContent(post.content));
 
-  const related = [1, 2, 3].map(o => posts[(idx + o) % posts.length]);
+  const sameCategory = posts.filter(p => p.slug !== post.slug && p.category === post.category);
+  const others = posts.filter(p => p.slug !== post.slug && p.category !== post.category);
+  const related = [...sameCategory, ...others].slice(0, 3);
 
   return (
     <Section>
@@ -505,6 +529,10 @@ const BlogPost: React.FC = () => {
             </PostMeta>
 
             <PostTitle>{post.title}</PostTitle>
+
+            <QuickAnswer>
+              <p><strong>Quick answer:</strong> {post.quickAnswer || post.excerpt}</p>
+            </QuickAnswer>
 
             <PostContent dangerouslySetInnerHTML={{ __html: html }} />
 
